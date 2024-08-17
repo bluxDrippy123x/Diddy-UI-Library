@@ -1,0 +1,228 @@
+-- UI Library Example Script
+
+local TweenService = game:GetService("TweenService")
+
+local UILibrary = {}
+
+function UILibrary:CreateWindow(title)
+    local Main = Instance.new("Frame")
+    Main.BackgroundColor3 = Color3.fromRGB(11, 11, 11)
+    Main.Size = UDim2.new(0, 640, 0, 430)
+    Main.Position = UDim2.new(0.5, -320, 0.5, -215)
+    Main.AnchorPoint = Vector2.new(0.5, 0.5)
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 6)
+    UICorner.Parent = Main
+    
+    local Title = Instance.new("TextLabel")
+    Title.Parent = Main
+    Title.BackgroundTransparency = 1
+    Title.Size = UDim2.new(1, 0, 0, 50)
+    Title.Font = Enum.Font.Ubuntu
+    Title.Text = title
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 35
+    Title.Position = UDim2.new(0, 0, 0, 0)
+    
+    return Main
+end
+
+function UILibrary:CreateButton(parent, buttonText, callback)
+    local Button = Instance.new("TextButton")
+    Button.Parent = parent
+    Button.Size = UDim2.new(0, 200, 0, 50)
+    Button.Text = buttonText
+    Button.Font = Enum.Font.Ubuntu
+    Button.TextSize = 22
+    Button.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 6)
+    UICorner.Parent = Button
+    
+    Button.MouseButton1Click:Connect(function()
+        callback()
+    end)
+    
+    return Button
+end
+
+function UILibrary:CreateToggle(parent, toggleName, callback)
+    local ToggleFrame = Instance.new("Frame")
+    ToggleFrame.Parent = parent
+    ToggleFrame.Size = UDim2.new(0, 200, 0, 50)
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 6)
+    UICorner.Parent = ToggleFrame
+    
+    local Title = Instance.new("TextLabel")
+    Title.Parent = ToggleFrame
+    Title.Text = toggleName
+    Title.Size = UDim2.new(0.7, 0, 1, 0)
+    Title.BackgroundTransparency = 1
+    Title.Font = Enum.Font.Ubuntu
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 22
+    
+    local ToggleButton = Instance.new("Frame")
+    ToggleButton.Size = UDim2.new(0, 30, 0, 30)
+    ToggleButton.Position = UDim2.new(0.8, 0, 0.1, 0)
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(85, 85, 255)
+    ToggleButton.Parent = ToggleFrame
+    
+    local UICornerButton = Instance.new("UICorner")
+    UICornerButton.CornerRadius = UDim.new(1, 0)
+    UICornerButton.Parent = ToggleButton
+    
+    local isOn = false
+    ToggleFrame.MouseButton1Click:Connect(function()
+        isOn = not isOn
+        if isOn then
+            ToggleButton:TweenPosition(UDim2.new(1.1, 0, 0.1, 0), "Out", "Quad", 0.25)
+            callback(true)
+        else
+            ToggleButton:TweenPosition(UDim2.new(0.8, 0, 0.1, 0), "Out", "Quad", 0.25)
+            callback(false)
+        end
+    end)
+    
+    return ToggleFrame
+end
+
+function UILibrary:CreateSlider(parent, sliderName, min, max, default, increment)
+    local SliderFrame = Instance.new("Frame")
+    SliderFrame.Size = UDim2.new(0, 200, 0, 50)
+    SliderFrame.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+    SliderFrame.Parent = parent
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 6)
+    UICorner.Parent = SliderFrame
+    
+    local Title = Instance.new("TextLabel")
+    Title.Text = sliderName
+    Title.Size = UDim2.new(0.7, 0, 1, 0)
+    Title.Position = UDim2.new(0, 10, 0, 0)
+    Title.BackgroundTransparency = 1
+    Title.Font = Enum.Font.Ubuntu
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 22
+    Title.Parent = SliderFrame
+    
+    local SliderBack = Instance.new("Frame")
+    SliderBack.BackgroundColor3 = Color3.fromRGB(85, 85, 255)
+    SliderBack.Size = UDim2.new(0.9, 0, 0, 6)
+    SliderBack.Position = UDim2.new(0.05, 0, 0.6, 0)
+    SliderBack.Parent = SliderFrame
+    
+    local UICornerBack = Instance.new("UICorner")
+    UICornerBack.CornerRadius = UDim.new(1, 0)
+    UICornerBack.Parent = SliderBack
+    
+    local Slider = Instance.new("Frame")
+    Slider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Slider.Size = UDim2.new(0, 10, 0, 20)
+    Slider.Position = UDim2.new(0.5, -5, 0.6, -7)
+    Slider.Parent = SliderBack
+    
+    local UICornerSlider = Instance.new("UICorner")
+    UICornerSlider.CornerRadius = UDim.new(1, 0)
+    UICornerSlider.Parent = Slider
+    
+    local dragging = false
+    
+    local function updatePosition(input)
+        local scale = (input.Position.X - SliderBack.AbsolutePosition.X) / SliderBack.AbsoluteSize.X
+        scale = math.clamp(scale, 0, 1)
+        local value = min + scale * (max - min)
+        Slider.Position = UDim2.new(scale, -5, Slider.Position.Y.Scale, Slider.Position.Y.Offset)
+    end
+    
+    Slider.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+        end
+    end)
+    
+    Slider.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    Slider.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            updatePosition(input)
+        end
+    end)
+    
+    return SliderFrame
+end
+
+function UILibrary:CreateTab(parent, tabName, callback)
+    local TabButton = Instance.new("TextButton")
+    TabButton.Parent = parent
+    TabButton.Size = UDim2.new(0, 189, 0, 32)
+    TabButton.Text = tabName
+    TabButton.Font = Enum.Font.Ubuntu
+    TabButton.TextSize = 22
+    TabButton.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+    TabButton.TextColor3 = Color3.fromRGB(153, 153, 153)
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 6)
+    UICorner.Parent = TabButton
+    
+    TabButton.MouseButton1Click:Connect(function()
+        for _, button in pairs(parent:GetChildren()) do
+            if button:IsA("TextButton") then
+                button.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+                button.TextColor3 = Color3.fromRGB(153, 153, 153)
+            end
+        end
+        TabButton.BackgroundColor3 = Color3.fromRGB(85, 85, 255)
+        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        callback()
+    end)
+    
+    return TabButton
+end
+
+-- Example usage:
+local window = UILibrary:CreateWindow("My Game UI")
+window.Parent = game.Players.LocalPlayer.PlayerGui
+
+local tabsFrame = Instance.new("Frame")
+tabsFrame.Parent = window
+tabsFrame.Size = UDim2.new(0, 210, 0, 353)
+tabsFrame.Position = UDim2.new(0, 10, 0, 60)
+
+local itemsFrame = Instance.new("Frame")
+itemsFrame.Parent = window
+itemsFrame.Size = UDim2.new(0, 420, 0, 353)
+itemsFrame.Position = UDim2.new(0, 220, 0, 60)
+
+UILibrary:CreateTab(tabsFrame, "Tab 1", function()
+    print("Tab 1 Selected")
+end)
+
+UILibrary:CreateTab(tabsFrame, "Tab 2", function()
+    print("Tab 2 Selected")
+end)
+
+local button = UILibrary:CreateButton(itemsFrame, "Click Me", function()
+    print("Button Pressed!")
+end)
+button.Position = UDim2.new(0, 10, 0, 10)
+
+local toggle = UILibrary:CreateToggle(itemsFrame, "Toggle Me", function(state)
+    print("Toggle is now", state and "On" or "Off")
+end)
+toggle.Position = UDim2.new(0, 10, 0, 70)
+
+local slider = UILibrary:CreateSlider(itemsFrame, "Slide Me", 0, 100, 50, 1)
+slider.Position = UDim2.new(0, 10, 0, 130)
